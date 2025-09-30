@@ -4,7 +4,7 @@ const resultDisplay = document.getElementById("result");
 const squares = [];
 let score = 0;
 
-/* ==== Tạo bàn cờ ==== */
+/* ==== Tạo bảng ==== */
 function createBoard() {
   for (let i = 0; i < 16; i++) {
     const square = document.createElement("div");
@@ -33,7 +33,7 @@ function generate() {
   setTimeout(() => squares[randomIndex].classList.remove("new"), 300);
 }
 
-/* ==== Màu sắc cho ô ==== */
+/* ==== Hàm cập nhật màu sắc ==== */
 function updateColors() {
   squares.forEach(square => {
     let value = parseInt(square.innerText);
@@ -70,7 +70,7 @@ function updateColors() {
   });
 }
 
-/* ==== Di chuyển ==== */
+/* ==== Hàm di chuyển ==== */
 function moveRight() {
   for (let i = 0; i < 16; i++) {
     if (i % 4 === 0) {
@@ -83,7 +83,10 @@ function moveRight() {
       let filtered = row.filter(num => num);
       let missing = 4 - filtered.length;
       let newRow = Array(missing).fill(0).concat(filtered);
-      for (let j = 0; j < 4; j++) squares[i+j].innerText = newRow[j] || "";
+
+      for (let j = 0; j < 4; j++) {
+        squares[i+j].innerText = newRow[j] || "";
+      }
     }
   }
 }
@@ -100,7 +103,10 @@ function moveLeft() {
       let filtered = row.filter(num => num);
       let missing = 4 - filtered.length;
       let newRow = filtered.concat(Array(missing).fill(0));
-      for (let j = 0; j < 4; j++) squares[i+j].innerText = newRow[j] || "";
+
+      for (let j = 0; j < 4; j++) {
+        squares[i+j].innerText = newRow[j] || "";
+      }
     }
   }
 }
@@ -116,7 +122,10 @@ function moveDown() {
     let filtered = col.filter(num => num);
     let missing = 4 - filtered.length;
     let newCol = Array(missing).fill(0).concat(filtered);
-    for (let j = 0; j < 4; j++) squares[i+4*j].innerText = newCol[j] || "";
+
+    for (let j = 0; j < 4; j++) {
+      squares[i+4*j].innerText = newCol[j] || "";
+    }
   }
 }
 
@@ -131,11 +140,14 @@ function moveUp() {
     let filtered = col.filter(num => num);
     let missing = 4 - filtered.length;
     let newCol = filtered.concat(Array(missing).fill(0));
-    for (let j = 0; j < 4; j++) squares[i+4*j].innerText = newCol[j] || "";
+
+    for (let j = 0; j < 4; j++) {
+      squares[i+4*j].innerText = newCol[j] || "";
+    }
   }
 }
 
-/* ==== Gộp ô ==== */
+/* ==== Kết hợp ô ==== */
 function combineRow() {
   for (let i = 0; i < 15; i++) {
     if (squares[i].innerText && squares[i].innerText === squares[i+1].innerText) {
@@ -164,7 +176,7 @@ function combineColumn() {
   }
 }
 
-/* ==== Điều khiển bằng phím ==== */
+/* ==== Điều khiển bàn phím ==== */
 function control(e) {
   if (e.keyCode === 39) keyRight();
   else if (e.keyCode === 37) keyLeft();
@@ -173,32 +185,34 @@ function control(e) {
 }
 document.addEventListener("keyup", control);
 
-/* ==== Điều khiển bằng cảm ứng ==== */
-let startX, startY, endX, endY;
+function keyRight() {
+  moveRight();
+  combineRow();
+  moveRight();
+  generate();
+  updateColors();
+}
 
-document.addEventListener("touchstart", function(e) {
-  startX = e.touches[0].clientX;
-  startY = e.touches[0].clientY;
-});
+function keyLeft() {
+  moveLeft();
+  combineRow();
+  moveLeft();
+  generate();
+  updateColors();
+}
 
-document.addEventListener("touchend", function(e) {
-  endX = e.changedTouches[0].clientX;
-  endY = e.changedTouches[0].clientY;
+function keyUp() {
+  moveUp();
+  combineColumn();
+  moveUp();
+  generate();
+  updateColors();
+}
 
-  let diffX = endX - startX;
-  let diffY = endY - startY;
-
-  if (Math.abs(diffX) > Math.abs(diffY)) {
-    if (diffX > 0) keyRight();
-    else keyLeft();
-  } else {
-    if (diffY > 0) keyDown();
-    else keyUp();
-  }
-});
-
-/* ==== Các hàm di chuyển chính ==== */
-function keyRight() { moveRight(); combineRow(); moveRight(); generate(); updateColors(); }
-function keyLeft() { moveLeft(); combineRow(); moveLeft(); generate(); updateColors(); }
-function keyUp() { moveUp(); combineColumn(); moveUp(); generate(); updateColors(); }
-function keyDown() { moveDown(); combineColumn(); moveDown(); generate(); updateColors(); }
+function keyDown() {
+  moveDown();
+  combineColumn();
+  moveDown();
+  generate();
+  updateColors();
+}
